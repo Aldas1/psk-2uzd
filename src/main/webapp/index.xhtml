@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:head>
+   <title>University Management</title>
+   <h:outputStylesheet library="css" name="styles.css"/>
+</h:head>
+
+<h:body>
+   <div class="container">
+      <div class="header">
+         <h1>University Management System</h1>
+         <div class="nav">
+            <h:link outcome="index" value="Home" styleClass="nav-item"/>
+            <h:link outcome="faculties" value="Faculties" styleClass="nav-item"/>
+            <h:link outcome="courses" value="Courses" styleClass="nav-item"/>
+            <h:link outcome="students" value="Students" styleClass="nav-item"/>
+         </div>
+      </div>
+
+      <div class="content">
+         <h2>Welcome to University Management System</h2>
+         <p>Select an option from the navigation menu to manage university data.</p>
+
+         <div class="dashboard">
+            <div class="dashboard-item">
+               <h3>Faculties</h3>
+               <p>Manage university faculties and departments</p>
+               <h:link outcome="faculties" value="Go to Faculties" styleClass="button"/>
+            </div>
+
+            <div class="dashboard-item">
+               <h3>Courses</h3>
+               <p>Manage university courses and course offerings</p>
+               <h:link outcome="courses" value="Go to Courses" styleClass="button"/>
+            </div>
+
+            <div class="dashboard-item">
+               <h3>Students</h3>
+               <p>Manage student records and course enrollments</p>
+               <h:link outcome="students" value="Go to Students" styleClass="button"/>
+            </div>
+         </div>
+      </div>
+
+      <div class="footer">
+         <p>2025 University Management System</p>
+      </div>
+   </div>
+</h:body>
+</html>
