@@ -20,8 +20,27 @@ public class FacultyService {
     private FacultyMyBatisDao facultyMyBatisDao;
 
     // JPA methods
+    public List<Faculty> getAllFacultiesJpa() {
+        return facultyJpaDao.getAllFaculties();
+    }
+
     public Faculty getFacultyByIdJpa(Long id) {
         return facultyJpaDao.getFacultyById(id);
+    }
+
+    @Transactional
+    public void saveFacultyJpa(Faculty faculty) {
+        facultyJpaDao.saveFaculty(faculty);
+    }
+
+    @Transactional
+    public void updateFacultyJpa(Faculty faculty) {
+        facultyJpaDao.updateFaculty(faculty);
+    }
+
+    @Transactional
+    public void deleteFacultyJpa(Long id) {
+        facultyJpaDao.deleteFaculty(id);
     }
 
     // MyBatis methods

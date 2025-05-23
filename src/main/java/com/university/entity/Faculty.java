@@ -26,6 +26,11 @@ public class Faculty implements Serializable {
     @Column(name = "department")
     private String department;
 
+    // Version field for optimistic locking
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     // One-to-many relationship with courses
     @OneToMany(mappedBy = "faculty", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Course> courses = new HashSet<>();

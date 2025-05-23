@@ -1,7 +1,8 @@
 CREATE TABLE faculty (
      id SERIAL PRIMARY KEY,
      name VARCHAR(100) NOT NULL,
-     department VARCHAR(100)
+     department VARCHAR(100),
+     version BIGINT DEFAULT 0
 );
 
 CREATE TABLE course (
@@ -9,7 +10,8 @@ CREATE TABLE course (
     course_code VARCHAR(20) NOT NULL UNIQUE,
     title VARCHAR(100) NOT NULL,
     credits INTEGER,
-    faculty_id INTEGER REFERENCES faculty(id)
+    faculty_id INTEGER REFERENCES faculty(id),
+    version BIGINT DEFAULT 0
 );
 
 CREATE TABLE student (
@@ -26,16 +28,16 @@ CREATE TABLE student_course (
     PRIMARY KEY (student_id, course_id)
 );
 
-INSERT INTO faculty (name, department) VALUES
-    ('Faculty of Science', 'Computer Science'),
-    ('Faculty of Arts', 'Music'),
-    ('Faculty of Engineering', 'Civil Engineering');
+INSERT INTO faculty (name, department, version) VALUES
+    ('Faculty of Science', 'Computer Science', 0),
+    ('Faculty of Arts', 'Music', 0),
+    ('Faculty of Engineering', 'Civil Engineering', 0);
 
-INSERT INTO course (course_code, title, credits, faculty_id) VALUES
-     ('CS101', 'Introduction to Programming', 6, 1),
-     ('CS202', 'Algorithms and Data Structures', 6, 1),
-     ('MUS101', 'Music Theory', 4, 2),
-     ('CE101', 'Engineering Mechanics', 6, 3);
+INSERT INTO course (course_code, title, credits, faculty_id, version) VALUES
+     ('CS101', 'Introduction to Programming', 6, 1, 0),
+     ('CS202', 'Algorithms and Data Structures', 6, 1, 0),
+     ('MUS101', 'Music Theory', 4, 2, 0),
+     ('CE101', 'Engineering Mechanics', 6, 3, 0);
 
 INSERT INTO student (student_id, first_name, last_name, email) VALUES
    ('S001', 'John', 'Doe', 'john.doe@example.com'),

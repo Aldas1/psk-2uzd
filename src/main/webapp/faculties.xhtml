@@ -72,6 +72,11 @@
                         </div>
 
                         <div class="form-row">
+                            <h:outputLabel for="editFacultyVersion" value="Version:"/>
+                            <h:inputText id="editFacultyVersion" value="#{facultyBean.selectedFaculty.version}" readonly="true"/>
+                        </div>
+
+                        <div class="form-row">
                             <h:outputLabel for="editFacultyName" value="Name:"/>
                             <h:inputText id="editFacultyName" value="#{facultyBean.selectedFaculty.name}" required="true" requiredMessage="Faculty name is required"/>
                             <h:message for="editFacultyName" styleClass="error-message"/>
@@ -107,6 +112,11 @@
                     <h:column>
                         <f:facet name="header">Department</f:facet>
                         #{faculty.department}
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header">Version</f:facet>
+                        #{faculty.version}
                     </h:column>
 
                     <h:column>

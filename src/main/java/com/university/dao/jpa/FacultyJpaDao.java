@@ -32,6 +32,13 @@ public class FacultyJpaDao {
     }
 
     @Transactional
+    public void updateFaculty(Faculty faculty) {
+        // This will trigger OptimisticLockException if version doesn't match
+        em.merge(faculty);
+        em.flush();
+    }
+
+    @Transactional
     public void deleteFaculty(Long id) {
         Faculty faculty = em.find(Faculty.class, id);
         if (faculty != null) {

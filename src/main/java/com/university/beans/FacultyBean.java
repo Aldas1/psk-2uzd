@@ -1,6 +1,6 @@
 package com.university.beans;
 
-import com.university.mybatis.entity.FacultyMB;
+import com.university.entity.Faculty;
 import com.university.service.FacultyService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
@@ -8,6 +8,7 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.persistence.OptimisticLockException;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,23 +20,21 @@ public class FacultyBean implements Serializable {
     @Inject
     private FacultyService facultyService;
 
-    private List<FacultyMB> faculties;
-    private FacultyMB newFaculty;
-    private FacultyMB selectedFaculty;
+    private List<Faculty> faculties;
+    private Faculty newFaculty;
+    private Faculty selectedFaculty;
     private boolean editMode = false;
 
     @PostConstruct
     public void init() {
-        // Now using MyBatis instead of JPA
-        faculties = facultyService.getAllFacultiesMyBatis();
-        newFaculty = new FacultyMB();
-        selectedFaculty = new FacultyMB();
+        faculties = facultyService.getAllFacultiesJpa();
+        newFaculty = new Faculty();
+        selectedFaculty = new Faculty();
     }
 
     public String saveFaculty() {
         try {
-            // Using MyBatis service method
-            facultyService.saveFacultyMyBatis(newFaculty);
+            facultyService.saveFacultyJpa(newFaculty);
             init(); // Refresh the list
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
@@ -51,8 +50,7 @@ public class FacultyBean implements Serializable {
 
     public String deleteFaculty(Long id) {
         try {
-            // Using MyBatis service method
-            facultyService.deleteFacultyMyBatis(id);
+            facultyService.deleteFacultyJpa(id);
             init(); // Refresh the list
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
@@ -66,23 +64,32 @@ public class FacultyBean implements Serializable {
         }
     }
 
-    public String editFaculty(FacultyMB faculty) {
-        // Load the fresh faculty using MyBatis
-        this.selectedFaculty = facultyService.getFacultyByIdMyBatis(faculty.getId());
+    public String editFaculty(Faculty faculty) {
+        // Create a detached copy to ensure optimistic locking works
+        this.selectedFaculty = new Faculty();
+        this.selectedFaculty.setId(faculty.getId());
+        this.selectedFaculty.setName(faculty.getName());
+        this.selectedFaculty.setDepartment(faculty.getDepartment());
+        this.selectedFaculty.setVersion(faculty.getVersion());
         this.editMode = true;
-        return null; // Stay on the current page
+        return null;
     }
 
     public String updateFaculty() {
         try {
-            // Using MyBatis service method
-            facultyService.saveFacultyMyBatis(selectedFaculty);
+            facultyService.updateFacultyJpa(selectedFaculty);
             this.editMode = false;
             init(); // Refresh the list
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                             "Success", "Faculty updated successfully."));
-            return null; // Stay on the current page
+            return null;
+        } catch (OptimisticLockException ole) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Optimistic Lock Exception",
+                            "The faculty was modified by another user. Please refresh and try again."));
+            return null;
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -92,23 +99,23 @@ public class FacultyBean implements Serializable {
     }
 
     // Getters and setters
-    public List<FacultyMB> getFaculties() {
+    public List<Faculty> getFaculties() {
         return faculties;
     }
 
-    public FacultyMB getNewFaculty() {
+    public Faculty getNewFaculty() {
         return newFaculty;
     }
 
-    public void setNewFaculty(FacultyMB newFaculty) {
+    public void setNewFaculty(Faculty newFaculty) {
         this.newFaculty = newFaculty;
     }
 
-    public FacultyMB getSelectedFaculty() {
+    public Faculty getSelectedFaculty() {
         return selectedFaculty;
     }
 
-    public void setSelectedFaculty(FacultyMB selectedFaculty) {
+    public void setSelectedFaculty(Faculty selectedFaculty) {
         this.selectedFaculty = selectedFaculty;
     }
 
