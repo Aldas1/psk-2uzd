@@ -23,7 +23,6 @@ public class MyBatisConfig {
     @PostConstruct
     public void init() {
         try {
-            // Create a simple DataSource with the same connection info as JPA
             PooledDataSource dataSource = new PooledDataSource();
             dataSource.setDriver("org.postgresql.Driver");
             dataSource.setUrl("jdbc:postgresql://localhost:5432/university");
@@ -33,7 +32,6 @@ public class MyBatisConfig {
             // Create configuration programmatically
             Configuration configuration = new Configuration();
 
-            // Set up environment with the DataSource
             Environment environment = new Environment(
                     "development",
                     new ManagedTransactionFactory(),
@@ -41,10 +39,8 @@ public class MyBatisConfig {
             );
             configuration.setEnvironment(environment);
 
-            // Add only Faculty mapper (Course and Student use JPA)
             configuration.addMapper(com.university.mybatis.mapper.FacultyMapper.class);
 
-            // Parse and add only the Faculty XML mapper
             addXmlMapper(configuration, "FacultyMapper.xml");
 
             // Build SqlSessionFactory

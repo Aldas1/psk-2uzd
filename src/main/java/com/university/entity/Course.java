@@ -29,17 +29,14 @@ public class Course implements Serializable {
     @Column(name = "credits")
     private Integer credits;
 
-    // Version field for optimistic locking
     @Version
     @Column(name = "version")
     private Long version;
 
-    // Many-to-one relationship with faculty
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "faculty_id")
     private Faculty faculty;
 
-    // Many-to-many relationship with students
     @ManyToMany(mappedBy = "courses")
     private Set<Student> students = new HashSet<>();
 

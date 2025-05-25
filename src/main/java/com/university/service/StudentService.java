@@ -14,7 +14,6 @@ public class StudentService {
     @Inject
     private StudentJpaDao studentJpaDao;
 
-    // JPA methods
     public List<Student> getAllStudentsJpa() {
         return studentJpaDao.getAllStudents();
     }

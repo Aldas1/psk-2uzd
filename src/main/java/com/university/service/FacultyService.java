@@ -25,10 +25,6 @@ public class FacultyService {
     @Inject
     private FacultyMyBatisDao facultyMyBatisDao;
 
-    // ============================================
-    // SINCHRONINIAI JPA METODAI
-    // ============================================
-
     public List<Faculty> getAllFacultiesJpa() {
         return facultyJpaDao.getAllFaculties();
     }
@@ -51,10 +47,6 @@ public class FacultyService {
     public void deleteFacultyJpa(Long id) {
         facultyJpaDao.deleteFaculty(id);
     }
-
-    // ============================================
-    // MYBATIS METODAI (palieka kaip buvo)
-    // ============================================
 
     public List<FacultyMB> getAllFacultiesMyBatis() {
         return facultyMyBatisDao.getAllFaculties();

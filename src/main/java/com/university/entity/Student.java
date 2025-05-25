@@ -32,7 +32,6 @@ public class Student implements Serializable {
     @Column(name = "email")
     private String email;
 
-    // Many-to-many relationship with courses
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(
             name = "student_course",
@@ -41,13 +40,11 @@ public class Student implements Serializable {
     )
     private Set<Course> courses = new HashSet<>();
 
-    // Helper method to add courses
     public void addCourse(Course course) {
         courses.add(course);
         course.getStudents().add(this);
     }
 
-    // Helper method to remove courses
     public void removeCourse(Course course) {
         courses.remove(course);
         course.getStudents().remove(this);

@@ -14,7 +14,6 @@ public class CourseServiceImpl implements CourseService {
     @Inject
     private CourseJpaDao courseJpaDao;
 
-    // JPA methods
     @Override
     public List<Course> getAllCoursesJpa() {
         return courseJpaDao.getAllCourses();

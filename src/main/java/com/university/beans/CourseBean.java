@@ -12,6 +12,8 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;
@@ -27,10 +29,19 @@ public class CourseBean implements Serializable {
     @Inject
     private FacultyService facultyService;
 
+    @Getter
     private List<Course> courses;
+    @Setter
+    @Getter
     private Course newCourse;
+    @Setter
+    @Getter
     private Course selectedCourse;
+    @Setter
+    @Getter
     private Long selectedFacultyId;
+    @Setter
+    @Getter
     private boolean editMode = false;
 
     @PostConstruct
@@ -43,20 +54,15 @@ public class CourseBean implements Serializable {
     @Auditable
     public String saveCourse() {
         try {
-            // If a faculty is selected, set it for the new course
             if (selectedFacultyId != null) {
-                // Get faculty using JPA since Course entity still uses JPA Faculty entity
                 Faculty faculty = facultyService.getFacultyByIdJpa(selectedFacultyId);
                 newCourse.setFaculty(faculty);
             }
 
-            // The decorator will handle validation and enhanced saving
             courseService.saveCourseJpa(newCourse);
 
-            init(); // Refresh the list
+            init();
 
-            // Only add success message if no validation errors occurred
-            // Check if there are any error messages already in the context
             boolean hasErrors = FacesContext.getCurrentInstance().getMessages(null).hasNext() &&
                     FacesContext.getCurrentInstance().getMessages().next().getSeverity().equals(FacesMessage.SEVERITY_ERROR);
 
@@ -68,7 +74,6 @@ public class CourseBean implements Serializable {
             return null;
         } catch (IllegalArgumentException e) {
             // Validation errors are already added to JSF context by the decorator
-            // Don't add another generic error message - just return null to stay on page
             return null;
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -82,7 +87,7 @@ public class CourseBean implements Serializable {
     public String deleteCourse(Long id) {
         try {
             courseService.deleteCourseJpa(id);
-            init(); // Refresh the list
+            init();
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                             "Success", "Course deleted successfully."));
@@ -96,7 +101,6 @@ public class CourseBean implements Serializable {
     }
 
     public String editCourse(Course course) {
-        // Load the fresh course with all associations
         this.selectedCourse = courseService.getCourseByIdJpa(course.getId());
         // Set the selected faculty ID
         if (this.selectedCourse.getFaculty() != null) {
@@ -105,15 +109,13 @@ public class CourseBean implements Serializable {
             this.selectedFacultyId = null;
         }
         this.editMode = true;
-        return null; // Stay on current page
+        return null;
     }
 
     @Auditable
     public String updateCourse() {
         try {
-            // If a faculty is selected, set it for the course
             if (selectedFacultyId != null) {
-                // Get faculty using JPA since Course entity still uses JPA Faculty entity
                 Faculty faculty = facultyService.getFacultyByIdJpa(selectedFacultyId);
                 selectedCourse.setFaculty(faculty);
             } else {
@@ -124,9 +126,8 @@ public class CourseBean implements Serializable {
             courseService.saveCourseJpa(selectedCourse);
 
             this.editMode = false;
-            init(); // Refresh the list
+            init();
 
-            // Only add success message if no validation errors occurred
             boolean hasErrors = FacesContext.getCurrentInstance().getMessages(null).hasNext() &&
                     FacesContext.getCurrentInstance().getMessages().next().getSeverity().equals(FacesMessage.SEVERITY_ERROR);
 
@@ -135,10 +136,9 @@ public class CourseBean implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_INFO,
                                 "Success", "Course updated successfully with enhanced validation."));
             }
-            return null; // Stay on current page
+            return null;
         } catch (IllegalArgumentException e) {
             // Validation errors are already added to JSF context by the decorator
-            // Don't add another generic error message - just return null to stay on page
             return null;
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -151,42 +151,5 @@ public class CourseBean implements Serializable {
     // Method to get faculties for dropdown - now using MyBatis
     public List<FacultyMB> getFacultiesForDropdown() {
         return facultyService.getAllFacultiesMyBatis();
-    }
-
-    // Getters and setters
-    public List<Course> getCourses() {
-        return courses;
-    }
-
-    public Course getNewCourse() {
-        return newCourse;
-    }
-
-    public void setNewCourse(Course newCourse) {
-        this.newCourse = newCourse;
-    }
-
-    public Course getSelectedCourse() {
-        return selectedCourse;
-    }
-
-    public void setSelectedCourse(Course selectedCourse) {
-        this.selectedCourse = selectedCourse;
-    }
-
-    public Long getSelectedFacultyId() {
-        return selectedFacultyId;
-    }
-
-    public void setSelectedFacultyId(Long selectedFacultyId) {
-        this.selectedFacultyId = selectedFacultyId;
-    }
-
-    public boolean isEditMode() {
-        return editMode;
-    }
-
-    public void setEditMode(boolean editMode) {
-        this.editMode = editMode;
     }
 }

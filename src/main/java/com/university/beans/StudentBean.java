@@ -10,6 +10,8 @@ import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;
@@ -27,14 +29,32 @@ public class StudentBean implements Serializable {
     @Inject
     private CourseService courseService;
 
+    // Getters and setters
+    @Getter
     private List<Student> students;
+    @Setter
+    @Getter
     private Student newStudent;
+    @Setter
+    @Getter
     private Student selectedStudent;
+    @Setter
+    @Getter
     private Long selectedCourseId;
-    private Long[] selectedCourseIds; // New array to hold selected course IDs from checkboxes
-    private String persistenceType = "jpa"; // Default to JPA
+    @Setter
+    @Getter
+    private Long[] selectedCourseIds;
+    @Setter
+    @Getter
+    private String persistenceType = "jpa";
+    @Getter
+    @Setter
     private boolean editMode = false;
+    @Setter
+    @Getter
     private boolean showStudentCourses = false;
+    @Setter
+    @Getter
     private Long showCoursesForStudentId = null;
 
     @PostConstruct
@@ -42,7 +62,7 @@ public class StudentBean implements Serializable {
         students = studentService.getAllStudentsJpa();
         newStudent = new Student();
         selectedStudent = new Student();
-        selectedCourseIds = new Long[0]; // Initialize empty array
+        selectedCourseIds = new Long[0];
     }
 
     public String saveStudent() {
@@ -50,16 +70,14 @@ public class StudentBean implements Serializable {
             // Save the student first to get an ID
             studentService.saveStudentJpa(newStudent);
 
-            // Now enroll student in each selected course
             if (selectedCourseIds != null && selectedCourseIds.length > 0) {
                 for (Long courseId : selectedCourseIds) {
                     studentService.enrollStudentInCourseJpa(newStudent.getId(), courseId);
                 }
-                // Refresh the student to include courses
                 newStudent = studentService.getStudentByIdJpa(newStudent.getId());
             }
 
-            init(); // Refresh the list
+            init();
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                             "Success", "Student saved successfully."));
@@ -75,7 +93,7 @@ public class StudentBean implements Serializable {
     public String deleteStudent(Long id) {
         try {
             studentService.deleteStudentJpa(id);
-            init(); // Refresh the list
+            init();
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                             "Success", "Student deleted successfully."));
@@ -89,7 +107,6 @@ public class StudentBean implements Serializable {
     }
 
     public String editStudent(Student student) {
-        // Reload the student to ensure all associations are loaded
         this.selectedStudent = studentService.getStudentByIdJpa(student.getId());
 
         // Initialize the selectedCourseIds array with current course IDs
@@ -102,12 +119,11 @@ public class StudentBean implements Serializable {
         }
 
         this.editMode = true;
-        return null; // Stay on the current page
+        return null;
     }
 
     public String updateStudent() {
         try {
-            // Get the current enrolled courses before updating
             Set<Course> currentCourses = null;
             if (selectedStudent.getCourses() != null) {
                 currentCourses = new HashSet<>(selectedStudent.getCourses());
@@ -115,10 +131,8 @@ public class StudentBean implements Serializable {
                 currentCourses = new HashSet<>();
             }
 
-            // First save the basic student info
             studentService.saveStudentJpa(selectedStudent);
 
-            // Convert selectedCourseIds to a Set of Course objects
             Set<Course> newCourses = new HashSet<>();
             if (selectedCourseIds != null && selectedCourseIds.length > 0) {
                 for (Long courseId : selectedCourseIds) {
@@ -129,7 +143,6 @@ public class StudentBean implements Serializable {
                 }
             }
 
-            // Determine courses to add
             for (Course course : newCourses) {
                 boolean alreadyEnrolled = false;
                 for (Course currentCourse : currentCourses) {
@@ -158,15 +171,14 @@ public class StudentBean implements Serializable {
             }
 
             this.editMode = false;
-            init(); // Refresh the list
+            init();
 
-            // Refresh the students list to show the updated data
             students = studentService.getAllStudentsJpa();
 
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                             "Success", "Student updated successfully."));
-            return null; // Stay on the current page
+            return null;
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
@@ -178,16 +190,12 @@ public class StudentBean implements Serializable {
 
     public void toggleStudentCourses(Long studentId) {
         if (showCoursesForStudentId != null && showCoursesForStudentId.equals(studentId)) {
-            // If already showing this student's courses, hide them
             showCoursesForStudentId = null;
             showStudentCourses = false;
         } else {
-            // Otherwise show this student's courses
             showCoursesForStudentId = studentId;
             showStudentCourses = true;
-            // Make sure we have the latest data by loading the student from the database
             Student student = studentService.getStudentByIdJpa(studentId);
-            // The courses are now loaded via the getStudentCourses method
         }
     }
 
@@ -197,74 +205,5 @@ public class StudentBean implements Serializable {
             return new ArrayList<>(student.getCourses());
         }
         return new ArrayList<>();
-    }
-
-    // Getters and setters
-    public List<Student> getStudents() {
-        return students;
-    }
-
-    public Student getNewStudent() {
-        return newStudent;
-    }
-
-    public void setNewStudent(Student newStudent) {
-        this.newStudent = newStudent;
-    }
-
-    public Student getSelectedStudent() {
-        return selectedStudent;
-    }
-
-    public void setSelectedStudent(Student selectedStudent) {
-        this.selectedStudent = selectedStudent;
-    }
-
-    public Long getSelectedCourseId() {
-        return selectedCourseId;
-    }
-
-    public void setSelectedCourseId(Long selectedCourseId) {
-        this.selectedCourseId = selectedCourseId;
-    }
-
-    public Long[] getSelectedCourseIds() {
-        return selectedCourseIds;
-    }
-
-    public void setSelectedCourseIds(Long[] selectedCourseIds) {
-        this.selectedCourseIds = selectedCourseIds;
-    }
-
-    public String getPersistenceType() {
-        return persistenceType;
-    }
-
-    public void setPersistenceType(String persistenceType) {
-        this.persistenceType = persistenceType;
-    }
-
-    public void setEditMode(boolean editMode) {
-        this.editMode = editMode;
-    }
-
-    public boolean isEditMode() {
-        return editMode;
-    }
-
-    public boolean isShowStudentCourses() {
-        return showStudentCourses;
-    }
-
-    public void setShowStudentCourses(boolean showStudentCourses) {
-        this.showStudentCourses = showStudentCourses;
-    }
-
-    public Long getShowCoursesForStudentId() {
-        return showCoursesForStudentId;
-    }
-
-    public void setShowCoursesForStudentId(Long showCoursesForStudentId) {
-        this.showCoursesForStudentId = showCoursesForStudentId;
     }
 }
