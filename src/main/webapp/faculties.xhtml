@@ -15,6 +15,21 @@
             margin-bottom: 15px;
             border: 1px solid #bde0f3;
         }
+        .async-status {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border: 1px solid #bee5eb;
+        }
+        .async-demo {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
     </style>
 </h:head>
 
@@ -36,6 +51,12 @@
             <!-- Global messages -->
             <h:messages globalOnly="true" infoClass="info-message" errorClass="error-message" />
 
+            <h:form style="margin-top: 10px;">
+                <h:commandButton value="🔄 Refresh Async"
+                                 action="#{facultyBean.refreshAsyncStatus()}"
+                                 styleClass="button secondary"/>
+            </h:form>
+
             <!-- Add New Faculty Form -->
             <h:panelGroup rendered="#{not facultyBean.editMode}">
                 <h:form id="facultyForm">
@@ -55,6 +76,12 @@
 
                         <div class="form-row">
                             <h:commandButton value="Save Faculty" action="#{facultyBean.saveFaculty()}" styleClass="button"/>
+
+                            <h:commandButton value="Save Async (5 sek)"
+                                             action="#{facultyBean.saveFacultyAsync()}"
+                                             styleClass="button secondary"
+                                             disabled="#{facultyBean.asyncSaving}"
+                                             title="Išsaugo faculty asinchroniškai su 5 sek. delay"/>
                         </div>
                     </div>
                 </h:form>

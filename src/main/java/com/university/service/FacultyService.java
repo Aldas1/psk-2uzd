@@ -4,11 +4,17 @@ import com.university.dao.jpa.FacultyJpaDao;
 import com.university.dao.mybatis.FacultyMyBatisDao;
 import com.university.entity.Faculty;
 import com.university.mybatis.entity.FacultyMB;
+import jakarta.ejb.Asynchronous;
+import jakarta.ejb.AsyncResult;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.logging.Logger;
 
 @ApplicationScoped
 public class FacultyService {
@@ -19,7 +25,10 @@ public class FacultyService {
     @Inject
     private FacultyMyBatisDao facultyMyBatisDao;
 
-    // JPA methods
+    // ============================================
+    // SINCHRONINIAI JPA METODAI
+    // ============================================
+
     public List<Faculty> getAllFacultiesJpa() {
         return facultyJpaDao.getAllFaculties();
     }
@@ -43,7 +52,10 @@ public class FacultyService {
         facultyJpaDao.deleteFaculty(id);
     }
 
-    // MyBatis methods
+    // ============================================
+    // MYBATIS METODAI (palieka kaip buvo)
+    // ============================================
+
     public List<FacultyMB> getAllFacultiesMyBatis() {
         return facultyMyBatisDao.getAllFaculties();
     }
