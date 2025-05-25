@@ -2,6 +2,7 @@ package com.university.beans;
 
 import com.university.entity.Course;
 import com.university.entity.Faculty;
+import com.university.interceptor.Auditable;
 import com.university.mybatis.entity.FacultyMB;
 import com.university.service.CourseService;
 import com.university.service.FacultyService;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @Named
 @SessionScoped
+@Auditable  // This will trigger the audit interceptor
 public class CourseBean implements Serializable {
 
     @Inject
@@ -38,6 +40,7 @@ public class CourseBean implements Serializable {
         selectedCourse = new Course();
     }
 
+    @Auditable
     public String saveCourse() {
         try {
             // If a faculty is selected, set it for the new course
@@ -46,11 +49,17 @@ public class CourseBean implements Serializable {
                 Faculty faculty = facultyService.getFacultyByIdJpa(selectedFacultyId);
                 newCourse.setFaculty(faculty);
             }
+
+            // The decorator will handle validation and enhanced saving
             courseService.saveCourseJpa(newCourse);
+
             init(); // Refresh the list
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Success", "Course saved successfully."));
+                            "Success", "Course saved successfully with enhanced validation."));
+            return null;
+        } catch (IllegalArgumentException e) {
+            // Validation errors are already added to JSF context by the decorator
             return null;
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -60,6 +69,7 @@ public class CourseBean implements Serializable {
         }
     }
 
+    @Auditable
     public String deleteCourse(Long id) {
         try {
             courseService.deleteCourseJpa(id);
@@ -89,6 +99,7 @@ public class CourseBean implements Serializable {
         return null; // Stay on current page
     }
 
+    @Auditable
     public String updateCourse() {
         try {
             // If a faculty is selected, set it for the course
@@ -99,13 +110,19 @@ public class CourseBean implements Serializable {
             } else {
                 selectedCourse.setFaculty(null);
             }
+
+            // The decorator will handle validation and enhanced saving
             courseService.saveCourseJpa(selectedCourse);
+
             this.editMode = false;
             init(); // Refresh the list
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Success", "Course updated successfully."));
+                            "Success", "Course updated successfully with enhanced validation."));
             return null; // Stay on current page
+        } catch (IllegalArgumentException e) {
+            // Validation errors are already added to JSF context by the decorator
+            return null;
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,

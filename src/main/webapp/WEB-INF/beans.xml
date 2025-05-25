@@ -4,4 +4,86 @@
        xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/beans_4_0.xsd"
        version="4.0"
        bean-discovery-mode="all">
+
+    <!-- ========================================== -->
+    <!-- CDI ALTERNATIVES CONFIGURATION            -->
+    <!-- ========================================== -->
+
+    <!--
+    Uncomment one of the following alternatives to change validation behavior:
+
+    1. Default: Basic validation (no configuration needed)
+       - Simple required field validation
+       - Basic credit validation
+
+    2. Strict validation: Enhanced rules
+       - Course code pattern validation
+       - Title length validation
+       - Faculty requirement
+       - Credit range validation
+
+    3. Premium validation: Database checks (automatically enabled via @Specializes)
+       - All strict validations PLUS
+       - Duplicate course code detection
+       - Advanced business rules
+    -->
+
+    <!-- OPTION 1: Enable Strict Validation (Alternative) -->
+    <alternatives>
+        <class>com.university.service.validation.StrictCourseValidationService</class>
+    </alternatives>
+
+    <!-- OPTION 2: Premium validation is automatically enabled via @Specializes -->
+    <!-- No configuration needed - it replaces StrictCourseValidationService automatically -->
+
+    <!-- ========================================== -->
+    <!-- CDI INTERCEPTORS CONFIGURATION            -->
+    <!-- ========================================== -->
+
+    <!-- Enable Audit Interceptor for method call logging -->
+    <interceptors>
+        <class>com.university.interceptor.AuditInterceptor</class>
+    </interceptors>
+
+    <!--
+    To disable interceptors, comment out the entire <interceptors> section above
+    -->
+
+    <!-- ========================================== -->
+    <!-- CDI DECORATORS CONFIGURATION              -->
+    <!-- ========================================== -->
+
+    <!-- Enable Enhanced Course Service Decorator -->
+    <decorators>
+        <class>com.university.decorator.EnhancedCourseServiceDecorator</class>
+    </decorators>
+
+    <!--
+    To disable decorators, comment out the entire <decorators> section above
+    -->
+
+    <!-- ========================================== -->
+    <!-- CONFIGURATION EXAMPLES                    -->
+    <!-- ========================================== -->
+
+    <!--
+    EXAMPLE 1: Basic validation only
+    - Comment out <alternatives>, keep <interceptors> and <decorators>
+    - Result: Basic validation + audit logging + enhanced course service
+
+    EXAMPLE 2: Strict validation with full features
+    - Uncomment <alternatives> with StrictCourseValidationService
+    - Keep <interceptors> and <decorators>
+    - Result: Strict validation + audit logging + enhanced course service
+
+    EXAMPLE 3: Premium validation (automatic via @Specializes)
+    - Comment out <alternatives>
+    - Keep <interceptors> and <decorators>
+    - Result: Premium validation + audit logging + enhanced course service
+
+    EXAMPLE 4: Minimal configuration
+    - Comment out <alternatives>, <interceptors>, and <decorators>
+    - Result: Only basic validation, no enhancements
+    -->
+
 </beans>
