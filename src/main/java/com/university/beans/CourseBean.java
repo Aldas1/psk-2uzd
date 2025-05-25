@@ -54,12 +54,21 @@ public class CourseBean implements Serializable {
             courseService.saveCourseJpa(newCourse);
 
             init(); // Refresh the list
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Success", "Course saved successfully with enhanced validation."));
+
+            // Only add success message if no validation errors occurred
+            // Check if there are any error messages already in the context
+            boolean hasErrors = FacesContext.getCurrentInstance().getMessages(null).hasNext() &&
+                    FacesContext.getCurrentInstance().getMessages().next().getSeverity().equals(FacesMessage.SEVERITY_ERROR);
+
+            if (!hasErrors) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO,
+                                "Success", "Course saved successfully with enhanced validation."));
+            }
             return null;
         } catch (IllegalArgumentException e) {
             // Validation errors are already added to JSF context by the decorator
+            // Don't add another generic error message - just return null to stay on page
             return null;
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
@@ -116,12 +125,20 @@ public class CourseBean implements Serializable {
 
             this.editMode = false;
             init(); // Refresh the list
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO,
-                            "Success", "Course updated successfully with enhanced validation."));
+
+            // Only add success message if no validation errors occurred
+            boolean hasErrors = FacesContext.getCurrentInstance().getMessages(null).hasNext() &&
+                    FacesContext.getCurrentInstance().getMessages().next().getSeverity().equals(FacesMessage.SEVERITY_ERROR);
+
+            if (!hasErrors) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO,
+                                "Success", "Course updated successfully with enhanced validation."));
+            }
             return null; // Stay on current page
         } catch (IllegalArgumentException e) {
             // Validation errors are already added to JSF context by the decorator
+            // Don't add another generic error message - just return null to stay on page
             return null;
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,

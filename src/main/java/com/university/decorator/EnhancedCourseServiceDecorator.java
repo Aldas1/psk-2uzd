@@ -38,17 +38,25 @@ public abstract class EnhancedCourseServiceDecorator implements CourseService {
 
         if (!validationErrors.isEmpty()) {
             logger.warning("DECORATOR: Validation failed for course " + course.getCourseCode());
+            logger.warning("DECORATOR: Validation errors: " + validationErrors);
 
             // Add individual validation error messages to JSF context if available
             if (FacesContext.getCurrentInstance() != null) {
+                // Add a header message indicating validation failure
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                "Validation Failed",
+                                "Course validation failed with " + validationService.getValidationType() + " validation:"));
+
+                // Add each specific validation error as a separate message
                 for (String error : validationErrors) {
                     FacesContext.getCurrentInstance().addMessage(null,
-                            new FacesMessage(FacesMessage.SEVERITY_ERROR, "Validation Failed", error));
+                            new FacesMessage(FacesMessage.SEVERITY_ERROR, "• " + error, ""));
                 }
             }
 
             // Create detailed error message for exception
-            StringBuilder errorMessage = new StringBuilder("Course validation failed: ");
+            StringBuilder errorMessage = new StringBuilder("Course validation failed (" + validationService.getValidationType() + "): ");
             for (int i = 0; i < validationErrors.size(); i++) {
                 if (i > 0) errorMessage.append("; ");
                 errorMessage.append(validationErrors.get(i));
@@ -78,7 +86,8 @@ public abstract class EnhancedCourseServiceDecorator implements CourseService {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                             "Enhanced Save",
-                            "Course saved with " + validationService.getValidationType() + " validation"));
+                            "Course '" + course.getCourseCode() + "' saved successfully with " +
+                                    validationService.getValidationType() + " validation"));
         }
     }
 
