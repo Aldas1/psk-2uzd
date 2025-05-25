@@ -16,7 +16,6 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.logging.Logger;
 
 @Named
 @ViewScoped
@@ -27,18 +26,21 @@ public class FacultyBean implements Serializable {
     @Inject
     private AsyncCalculationService asyncService;
 
-    // Getters and setters
     @Getter
     private List<Faculty> faculties;
-    @Setter
-    @Getter
+    @Setter @Getter
     private Faculty newFaculty;
-    @Setter
-    @Getter
+    @Setter @Getter
     private Faculty selectedFaculty;
-    @Setter
-    @Getter
+    @Setter @Getter
     private boolean editMode = false;
+
+    @Setter @Getter
+    private boolean showConflictDialog = false;
+    @Setter @Getter
+    private Faculty conflictedFaculty;
+    @Setter @Getter
+    private Faculty databaseFaculty;
 
     private Future<String> asyncSaveTask = null;
     @Getter
@@ -119,7 +121,6 @@ public class FacultyBean implements Serializable {
                             "Statusas", "Nėra aktyvių asinchroninių operacijų."));
             init();
         }
-
         return null;
     }
 
@@ -141,7 +142,6 @@ public class FacultyBean implements Serializable {
 
     public String editFaculty(Faculty faculty) {
         this.selectedFaculty = facultyService.getFacultyByIdJpa(faculty.getId());
-
         this.editMode = true;
         return null;
     }
@@ -151,33 +151,117 @@ public class FacultyBean implements Serializable {
             Faculty currentInDb = facultyService.getFacultyByIdJpa(selectedFaculty.getId());
 
             if (!currentInDb.getVersion().equals(selectedFaculty.getVersion())) {
-                throw new OptimisticLockException("Version mismatch detected");
+                this.conflictedFaculty = new Faculty();
+                this.conflictedFaculty.setId(selectedFaculty.getId());
+                this.conflictedFaculty.setName(selectedFaculty.getName());
+                this.conflictedFaculty.setDepartment(selectedFaculty.getDepartment());
+                this.conflictedFaculty.setVersion(selectedFaculty.getVersion());
+
+                this.databaseFaculty = currentInDb;
+                this.showConflictDialog = true;
+
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_WARN,
+                                "Concurrent Modification Detected",
+                                "Another user has modified this faculty record. Please choose how to proceed."));
+                return null;
             }
 
             facultyService.updateFacultyJpa(selectedFaculty);
-
             Faculty afterUpdate = facultyService.getFacultyByIdJpa(selectedFaculty.getId());
+
             this.editMode = false;
             init();
+
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                             "Success", "Faculty updated successfully. New version: " + afterUpdate.getVersion()));
             return null;
+
         } catch (OptimisticLockException ole) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Concurrent Update Detected",
-                            "Another user has modified this faculty record while you were editing it. " +
-                                    ole.getMessage()));
-            init();
-            this.editMode = false;
+            handleOptimisticLockException(ole);
             return null;
         } catch (Exception e) {
-
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             "Error updating faculty", e.getMessage()));
             return null;
         }
+    }
+
+    private void handleOptimisticLockException(OptimisticLockException ole) {
+        try {
+            Faculty currentInDb = facultyService.getFacultyByIdJpa(selectedFaculty.getId());
+
+            this.conflictedFaculty = new Faculty();
+            this.conflictedFaculty.setId(selectedFaculty.getId());
+            this.conflictedFaculty.setName(selectedFaculty.getName());
+            this.conflictedFaculty.setDepartment(selectedFaculty.getDepartment());
+            this.conflictedFaculty.setVersion(selectedFaculty.getVersion());
+
+            this.databaseFaculty = currentInDb;
+            this.showConflictDialog = true;
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Optimistic Lock Exception",
+                            "Entity was modified by another user. Transaction was rolled back. Please choose how to proceed."));
+
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Error handling conflict", e.getMessage()));
+            init();
+            this.editMode = false;
+        }
+    }
+
+    public String discardChanges() {
+        showConflictDialog = false;
+        editMode = false;
+        conflictedFaculty = null;
+        databaseFaculty = null;
+        init();
+
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO,
+                        "Changes Discarded", "Your changes have been discarded. Data refreshed from database."));
+        return null;
+    }
+
+    public String overwriteChanges() {
+        try {
+            Faculty facultyToSave = new Faculty();
+            facultyToSave.setId(conflictedFaculty.getId());
+            facultyToSave.setName(conflictedFaculty.getName());
+            facultyToSave.setDepartment(conflictedFaculty.getDepartment());
+            facultyToSave.setVersion(databaseFaculty.getVersion());
+
+            facultyService.updateFacultyJpa(facultyToSave);
+
+            showConflictDialog = false;
+            editMode = false;
+            conflictedFaculty = null;
+            databaseFaculty = null;
+            init();
+
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO,
+                            "Changes Overwritten", "Your changes have been saved, overwriting the other user's changes."));
+            return null;
+
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Error overwriting changes", e.getMessage()));
+            return null;
+        }
+    }
+
+    public String cancelConflictResolution() {
+        showConflictDialog = false;
+        conflictedFaculty = null;
+        databaseFaculty = null;
+        return null;
     }
 }
