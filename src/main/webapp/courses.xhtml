@@ -145,6 +145,45 @@
                   #{course.faculty.name}
                </h:column>
 
+               <!-- New Students column -->
+               <h:column>
+                  <f:facet name="header">Students</f:facet>
+                  <h:commandLink styleClass="course-count" action="#{courseBean.toggleCourseStudents(course.id)}">
+                     <h:outputText value="#{course.students.size()} students" />
+                  </h:commandLink>
+
+                  <h:panelGroup rendered="#{courseBean.showCourseStudents and courseBean.showStudentsForCourseId eq course.id}">
+                     <div class="course-details">
+                        <h4>Enrolled Students</h4>
+                        <h:dataTable value="#{courseBean.courseStudents}" var="student"
+                                     styleClass="data-table" headerClass="table-header"
+                                     rowClasses="table-row-odd, table-row-even"
+                                     rendered="#{not empty courseBean.courseStudents}">
+                           <h:column>
+                              <f:facet name="header">Student ID</f:facet>
+                              #{student.studentId}
+                           </h:column>
+                           <h:column>
+                              <f:facet name="header">First Name</f:facet>
+                              #{student.firstName}
+                           </h:column>
+                           <h:column>
+                              <f:facet name="header">Last Name</f:facet>
+                              #{student.lastName}
+                           </h:column>
+                           <h:column>
+                              <f:facet name="header">Email</f:facet>
+                              #{student.email}
+                           </h:column>
+                        </h:dataTable>
+
+                        <h:outputText value="No students are enrolled in this course."
+                                      rendered="#{empty courseBean.courseStudents}"
+                                      style="font-style: italic;"/>
+                     </div>
+                  </h:panelGroup>
+               </h:column>
+
                <h:column>
                   <f:facet name="header">Actions</f:facet>
                   <h:commandButton value="Edit" action="#{courseBean.editCourse(course)}" styleClass="button small"/>

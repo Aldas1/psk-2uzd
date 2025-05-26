@@ -8,12 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * Strict course validation service - enhanced validation rules
- * This is a CDI Alternative to CourseValidationService
- *
- * To enable this alternative, uncomment the <alternatives> section in beans.xml
- */
 @Alternative
 @ApplicationScoped
 public class StrictCourseValidationService extends CourseValidationService {
@@ -24,10 +18,8 @@ public class StrictCourseValidationService extends CourseValidationService {
     public List<String> validateCourse(Course course) {
         List<String> errors = new ArrayList<>();
 
-        // Basic validations from parent
         errors.addAll(super.validateCourse(course));
 
-        // Additional strict validations
         if (course.getCourseCode() != null && !course.getCourseCode().trim().isEmpty()) {
             if (!COURSE_CODE_PATTERN.matcher(course.getCourseCode().trim()).matches()) {
                 errors.add("Course code must follow pattern: 2-4 letters followed by 3 digits (e.g., CS101, MATH201)");

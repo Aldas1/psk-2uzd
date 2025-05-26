@@ -6,9 +6,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Default course validation service - basic validation rules
- */
 @ApplicationScoped
 public class CourseValidationService {
 

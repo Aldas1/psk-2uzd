@@ -2,10 +2,12 @@ package com.university.beans;
 
 import com.university.entity.Course;
 import com.university.entity.Faculty;
+import com.university.entity.Student;
 import com.university.interceptor.Auditable;
 import com.university.mybatis.entity.FacultyMB;
 import com.university.service.CourseService;
 import com.university.service.FacultyService;
+import com.university.service.StudentService;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
@@ -16,11 +18,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Named
 @SessionScoped
-@Auditable  // This will trigger the audit interceptor
+@Auditable
 public class CourseBean implements Serializable {
 
     @Inject
@@ -28,6 +31,9 @@ public class CourseBean implements Serializable {
 
     @Inject
     private FacultyService facultyService;
+
+    @Inject
+    private StudentService studentService;
 
     @Getter
     private List<Course> courses;
@@ -43,6 +49,12 @@ public class CourseBean implements Serializable {
     @Setter
     @Getter
     private boolean editMode = false;
+    @Setter
+    @Getter
+    private boolean showCourseStudents = false;
+    @Setter
+    @Getter
+    private Long showStudentsForCourseId = null;
 
     @PostConstruct
     public void init() {
@@ -148,8 +160,24 @@ public class CourseBean implements Serializable {
         }
     }
 
-    // Method to get faculties for dropdown - now using MyBatis
     public List<FacultyMB> getFacultiesForDropdown() {
         return facultyService.getAllFacultiesMyBatis();
+    }
+
+    public void toggleCourseStudents(Long courseId) {
+        if (showStudentsForCourseId != null && showStudentsForCourseId.equals(courseId)) {
+            showStudentsForCourseId = null;
+            showCourseStudents = false;
+        } else {
+            showStudentsForCourseId = courseId;
+            showCourseStudents = true;
+        }
+    }
+
+    public List<Student> getCourseStudents() {
+        if (showStudentsForCourseId != null) {
+            return studentService.getStudentsByCourseIdJpa(showStudentsForCourseId);
+        }
+        return new ArrayList<>();
     }
 }
