@@ -29,7 +29,6 @@ public class StudentBean implements Serializable {
     @Inject
     private CourseService courseService;
 
-    // Getters and setters
     @Getter
     private List<Student> students;
     @Setter

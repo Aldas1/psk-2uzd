@@ -56,7 +56,7 @@ public class FacultyBean implements Serializable {
     public String saveFaculty() {
         try {
             facultyService.saveFacultyJpa(newFaculty);
-            init(); // Refresh the list
+            init();
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO,
                             "Success", "Faculty saved successfully."));
