@@ -2,6 +2,7 @@ package com.university.service;
 
 import com.university.dao.jpa.FacultyJpaDao;
 import com.university.dao.mybatis.FacultyMyBatisDao;
+import com.university.entity.Course;
 import com.university.entity.Faculty;
 import com.university.mybatis.entity.FacultyMB;
 import jakarta.ejb.Asynchronous;
@@ -59,6 +60,10 @@ public class FacultyService {
     @Transactional
     public void saveFacultyMyBatis(FacultyMB faculty) {
         facultyMyBatisDao.saveFaculty(faculty);
+    }
+    @Transactional
+    public List<Course> getCoursesByFacultyIdJpa(Long facultyId) {
+        return facultyJpaDao.getCoursesByFacultyId(facultyId);
     }
 
     @Transactional

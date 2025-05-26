@@ -1,5 +1,6 @@
 package com.university.dao.jpa;
 
+import com.university.entity.Course;
 import com.university.entity.Faculty;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
@@ -44,5 +45,11 @@ public class FacultyJpaDao {
         if (faculty != null) {
             em.remove(faculty);
         }
+    }
+    @Transactional
+    public List<Course> getCoursesByFacultyId(Long facultyId) {
+        return em.createQuery("SELECT c FROM Course c WHERE c.faculty.id = :facultyId", Course.class)
+                .setParameter("facultyId", facultyId)
+                .getResultList();
     }
 }

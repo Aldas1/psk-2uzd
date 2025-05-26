@@ -1,5 +1,6 @@
 package com.university.beans;
 
+import com.university.entity.Course;
 import com.university.entity.Faculty;
 import com.university.service.AsyncCalculationService;
 import com.university.service.FacultyService;
@@ -139,13 +140,9 @@ public class FacultyBean implements Serializable {
             return null;
         }
     }
-
-    public String editFaculty(Faculty faculty) {
-        this.selectedFaculty = facultyService.getFacultyByIdJpa(faculty.getId());
-        this.editMode = true;
-        return null;
+    public List<Course> getCoursesByFacultyId(Faculty faculty) {
+        return facultyService.getCoursesByFacultyIdJpa(faculty.getId());
     }
-
     public String updateFaculty() {
         try {
             Faculty currentInDb = facultyService.getFacultyByIdJpa(selectedFaculty.getId());
